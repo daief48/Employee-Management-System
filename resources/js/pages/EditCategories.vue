@@ -1,0 +1,72 @@
+<template>
+    <div id="create-categories">
+        <div id="contact-us">
+            <h1>Edit New Category</h1>
+            <div class="success-msg" v-if="success">
+                <i class="fa fa-check"></i>
+                Category Updated successfully
+            </div>
+            <div class="contact-form">
+                <form @submit.prevent="submit">
+                    <label for="name"><span>Name</span></label>
+                    <input type="text" id="name" name="name" v-model="field.name">
+                    <span v-if="errors.name" class="error">{{ errors.name[0] }}</span>
+
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+            <div class="create-categories">
+                <router-link :to="{ name: 'CategoriesList' }">Category List <span>&#8594;</span></router-link>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+import axios from 'axios'
+export default {
+    props: ['id'],
+    props: ['slug'],
+    data() {
+        return {
+            field: {},
+            errors: {},
+            success: false
+        }
+    },
+    methods: {
+        submit() {
+            axios.put("/api/categories/" + this.id, this.field)
+                .then(() => {
+                    this.field = {};
+                    this.errors = {};
+                    this.success = true;
+
+                    setInterval(() => {
+                        this.success = false
+                    }, 2500)
+                })
+                .catch((error) => {
+                    this.errors = error.response.data.errors;
+                })
+        }
+    },
+    mounted() {
+        axios.get('/api/categories/' + this.id)
+            .then((response) => {
+                console.log(response);
+                this.field = response.data;
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+}
+</script>
+<style>
+#create-categories {
+    background: #f3f4f6;
+    height: 90vh;
+    padding: 50px;
+    position: relative;
+}
+</style>
